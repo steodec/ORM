@@ -1,0 +1,22 @@
+{
+  "name": "steodec/orm",
+  "type": "library",
+  "version": "1.1.2",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.0",
+    "vlucas/phpdotenv": "^5.4",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Steodec\\ORM\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Paul Tedesco",
+      "email": "paul.tedesco@humbrain.com"
+    }
+  ]
+}
