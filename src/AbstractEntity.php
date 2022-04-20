@@ -24,7 +24,7 @@ abstract class AbstractEntity
     /**
      * @var ORM
      */
-    protected ORM $ORM;
+    private ORM $ORM;
     /**
      * Clef primaire dans la base
      *
