@@ -20,13 +20,11 @@ use PDOException;
  *
  * @property PDO $_DB     instance de la base de données
  */
-class ORM
-{
+class ORM {
 
     private PDO $_DB;
 
-    public function __construct()
-    {
+    public function __construct() {
         $dns = $_ENV['HOST_URL'];
         try {
             $this->_DB = new PDO($dns, $_ENV['DB_USER'], $_ENV['DB_PASSWORD'], [PDO::ATTR_PERSISTENT => TRUE]);
@@ -38,8 +36,7 @@ class ORM
     /**
      * @return PDO
      */
-    public function getDB(): PDO
-    {
+    public function getDB(): PDO {
         return $this->_DB;
     }
 
@@ -48,13 +45,12 @@ class ORM
      *
      * @param AbstractEntity $entity
      *
-     * @throws ORMException
      * @return AbstractEntity
+     * @throws ORMException
      */
-    public function create(AbstractEntity $entity): AbstractEntity
-    {
-        $array = get_object_vars($entity);
-        $query_string = sprintf('INSERT INTO %s', $entity::TABLE_NAME);
+    public function create(AbstractEntity $entity): AbstractEntity {
+        $array              = get_object_vars($entity);
+        $query_string       = sprintf('INSERT INTO %s', $entity::TABLE_NAME);
         $query_string_field = '( ';
         $query_string_value = 'VALUES (';
         foreach ($entity as $key => $value):
@@ -73,7 +69,7 @@ class ORM
             endif;
         endforeach;
         $query_string .= $query_string_field . $query_string_value;
-        $query = $this->_DB->prepare($query_string);
+        $query        = $this->_DB->prepare($query_string);
         foreach ($array as $key => &$value):
             $query->bindParam(":$key", $value, self::getPDOType($value));
         endforeach;
@@ -89,8 +85,7 @@ class ORM
      *
      * @return int
      */
-    private static function getPDOType($type)
-    {
+    private static function getPDOType($type) {
         return match ($type) {
             'double', 'integer' => PDO::PARAM_INT,
             'boolean' => PDO::PARAM_BOOL,
@@ -103,13 +98,12 @@ class ORM
      *
      * @param AbstractEntity $entity
      *
-     * @throws ORMException
      * @return AbstractEntity
+     * @throws ORMException
      */
-    public function readByID(AbstractEntity $entity): AbstractEntity
-    {
+    public function readByID(AbstractEntity $entity): AbstractEntity {
         $query_string = sprintf("SELECT * FROM %s WHERE id = %d", $entity::TABLE_NAME, $entity->getID());
-        $query = $this->_DB->query($query_string);
+        $query        = $this->_DB->query($query_string);
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_CLASS, $entity::class);
         return (count($result) > 0) ? $result[0] : throw new ORMException();
@@ -119,16 +113,15 @@ class ORM
      * Retourne l'entité demander filtrant par un champ
      *
      * @param AbstractEntity $entity
-     * @param string         $column
-     * @param mixed          $value
+     * @param string $column
+     * @param mixed $value
      *
-     * @throws ORMException
      * @return AbstractEntity[]
+     * @throws ORMException
      */
-    public function readByColumn(AbstractEntity $entity, string $column, mixed $value): iterable
-    {
+    public function readByColumn(AbstractEntity $entity, string $column, mixed $value): iterable {
         $query_string = sprintf("SELECT * FROM %s WHERE %s = '%s'", $entity::TABLE_NAME, $column, $value);
-        $query = $this->_DB->query($query_string);
+        $query        = $this->_DB->query($query_string);
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_CLASS, $entity::class);
         return (count($result) > 0) ? $result : throw new ORMException();
@@ -138,13 +131,12 @@ class ORM
      * Retourne l'entité demander filtrant par un champ
      *
      * @param AbstractEntity $entity
-     * @param array          $params
+     * @param array $params
      *
-     * @throws ORMException
      * @return AbstractEntity[]
+     * @throws ORMException
      */
-    public function readByColumnMultiple(AbstractEntity $entity, array $params): iterable
-    {
+    public function readByColumnMultiple(AbstractEntity $entity, array $params): iterable {
         $query_string = sprintf("SELECT * FROM %s WHERE ", $entity::TABLE_NAME);
         foreach ($params as $column => $value):
             if ($column === array_key_last($params)):
@@ -164,13 +156,12 @@ class ORM
      *
      * @param AbstractEntity $entity
      *
-     * @throws ORMException
      * @return AbstractEntity
+     * @throws ORMException
      */
-    public function update(AbstractEntity $entity): AbstractEntity
-    {
-        $array = get_object_vars($entity);
-        $query_string = sprintf('UPDATE %s', $entity::TABLE_NAME);
+    public function update(AbstractEntity $entity): AbstractEntity {
+        $array              = get_object_vars($entity);
+        $query_string       = sprintf('UPDATE %s', $entity::TABLE_NAME);
         $query_string_field = ' SET ';
         foreach ($entity as $key => $value):
             $class = $entity::class;
@@ -187,22 +178,17 @@ class ORM
         endforeach;
         $query_string .= $query_string_field;
         $query_string .= sprintf('WHERE id = %d', $entity->getID());
-        $query = $this->_DB->prepare($query_string);
+        $query        = $this->_DB->prepare($query_string);
         foreach ($array as $key => &$value):
             $query->bindParam(":$key", $value, self::getPDOType($value));
         endforeach;
-        if ($query->execute()):
-            $entity->setID($this->lastID($entity));
-            return $this->readByID($entity);
-        else: return throw new ORMException();
-        endif;
+        return ($query->execute());
     }
 
     /**
      * @throws ORMException
      */
-    private function lastID(AbstractEntity $entity): int
-    {
+    private function lastID(AbstractEntity $entity): int {
         $entities = $this->read($entity);
         usort($entities, function (AbstractEntity $a, AbstractEntity $b) {
             return ($a->getID() < $b->getID()) ? -1 : 1;
@@ -214,21 +200,20 @@ class ORM
      * Retourne le tableaux de toutes les entités demander
      *
      * @param AbstractEntity $entity
-     * @param int|null       $LIMIT
+     * @param int|null $LIMIT
      *
-     * @throws ORMException
      * @return AbstractEntity[]
+     * @throws ORMException
      */
-    public function read(AbstractEntity $entity, ?int $LIMIT = NULL): iterable
-    {
+    public function read(AbstractEntity $entity, ?int $LIMIT = NULL): iterable {
         if (is_null($LIMIT)):
             $LIMIT_string = ";";
         else:
             $LIMIT_string = "LIMIT " . $LIMIT;
         endif;
         $query_string = sprintf('SELECT * FROM %s %s', $entity::TABLE_NAME, $LIMIT_string);
-        $query = $this->_DB->query($query_string);
-        $result = $query->execute();
+        $query        = $this->_DB->query($query_string);
+        $result       = $query->execute();
         return ($result) ? $query->fetchAll(PDO::FETCH_CLASS, $entity::class) : throw new ORMException();
     }
 
@@ -239,10 +224,9 @@ class ORM
      *
      * @return bool
      */
-    public function delete(AbstractEntity $entity): bool
-    {
+    public function delete(AbstractEntity $entity): bool {
         $query_string = sprintf("DELETE FROM %s WHERE id = %d", $entity::TABLE_NAME, $entity->getID());
-        $query = $this->_DB->query($query_string);
+        $query        = $this->_DB->query($query_string);
         return $query->execute();
     }
 
