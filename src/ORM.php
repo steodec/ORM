@@ -156,10 +156,10 @@ class ORM {
      *
      * @param AbstractEntity $entity
      *
-     * @return AbstractEntity
+     * @return bool
      * @throws ORMException
      */
-    public function update(AbstractEntity $entity): AbstractEntity {
+    public function update(AbstractEntity $entity): bool {
         $array              = get_object_vars($entity);
         $query_string       = sprintf('UPDATE %s', $entity::TABLE_NAME);
         $query_string_field = ' SET ';
