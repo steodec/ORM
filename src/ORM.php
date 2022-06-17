@@ -157,7 +157,6 @@ class ORM {
      * @param AbstractEntity $entity
      *
      * @return bool
-     * @throws ORMException
      */
     public function update(AbstractEntity $entity): bool {
         $array              = get_object_vars($entity);

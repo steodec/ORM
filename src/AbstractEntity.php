@@ -110,11 +110,9 @@ abstract class AbstractEntity
     }
 
     /**
-     * @throws ORMException
-     * @return AbstractEntity
+     * @return bool
      */
-    public function update(): AbstractEntity
-    {
+    public function update(): bool {
         return $this->ORM->update($this);
     }
 
