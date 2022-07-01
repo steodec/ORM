@@ -54,7 +54,7 @@ class ORM {
         $query_string_field = '( ';
         $query_string_value = 'VALUES (';
         foreach ($entity as $key => $value):
-            $class = $entity::class;
+            $class = get_class($entity);
             if (!property_exists(new $class, $key)):
                 unset($entity->${$key});
             endif;
@@ -105,7 +105,7 @@ class ORM {
         $query_string = sprintf("SELECT * FROM %s WHERE id = %d", $entity::TABLE_NAME, $entity->getID());
         $query        = $this->_DB->query($query_string);
         $query->execute();
-        $result = $query->fetchAll(PDO::FETCH_CLASS, $entity::class);
+        $result = $query->fetchAll(PDO::FETCH_CLASS, get_class($entity));
         return (count($result) > 0) ? $result[0] : throw new ORMException();
     }
 
@@ -123,7 +123,7 @@ class ORM {
         $query_string = sprintf("SELECT * FROM %s WHERE %s = '%s'", $entity::TABLE_NAME, $column, $value);
         $query        = $this->_DB->query($query_string);
         $query->execute();
-        $result = $query->fetchAll(PDO::FETCH_CLASS, $entity::class);
+        $result = $query->fetchAll(PDO::FETCH_CLASS, get_class($entity));
         return (count($result) > 0) ? $result : throw new ORMException();
     }
 
@@ -147,7 +147,7 @@ class ORM {
         endforeach;
         $query = $this->_DB->query($query_string);
         $query->execute();
-        $result = $query->fetchAll(PDO::FETCH_CLASS, $entity::class);
+        $result = $query->fetchAll(PDO::FETCH_CLASS, get_class($entity));
         return (count($result) > 0) ? $result : throw new ORMException("Une Erreur c'est produite");
     }
 
@@ -163,7 +163,7 @@ class ORM {
         $query_string       = sprintf('UPDATE %s', $entity::TABLE_NAME);
         $query_string_field = ' SET ';
         foreach ($entity as $key => $value):
-            $class = $entity::class;
+            $class = get_class($entity);
             if (!property_exists(new $class, $key)):
                 unset($entity->${$key});
             endif;
@@ -213,7 +213,7 @@ class ORM {
         $query_string = sprintf('SELECT * FROM %s %s', $entity::TABLE_NAME, $LIMIT_string);
         $query        = $this->_DB->query($query_string);
         $result       = $query->execute();
-        return ($result) ? $query->fetchAll(PDO::FETCH_CLASS, $entity::class) : throw new ORMException();
+        return ($result) ? $query->fetchAll(PDO::FETCH_CLASS, get_class($entity)) : throw new ORMException();
     }
 
     /**
